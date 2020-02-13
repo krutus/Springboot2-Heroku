@@ -95,6 +95,7 @@ public class ClienteController {
 	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model,
 			Authentication authentication, HttpServletRequest request) {
 
+		/*Pruebas para conseguir sacar el valor del campo del usuario autenticado y su rol.
 		if (authentication != null) {
 			logger.info("Hola, estás conectado como: ".concat(authentication.getName()));
 		}
@@ -119,7 +120,7 @@ public class ClienteController {
 		} else {
 			logger.info("Wrapper-> Hola ".concat(auth.getName().concat(" no tienes acceso.")));
 		}
-
+		 */
 		Pageable pageRequest = PageRequest.of(page, 4);
 
 		Page<Cliente> clientes = clienteService.findAll(pageRequest);
