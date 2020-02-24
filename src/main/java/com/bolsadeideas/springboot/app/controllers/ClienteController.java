@@ -56,7 +56,7 @@ public class ClienteController {
 
 	@Autowired
 	private IUploadFileService uploadFileService;
-	
+
 	@Autowired
 	private MessageSource messageSource;
 
@@ -79,53 +79,52 @@ public class ClienteController {
 	}
 
 	// @Secured("ROLE_USER") // al añadir "prePostEnabled = true" En el
-							// securityController, podemos cambiar
-							// al siguiente
+	// securityController, podemos cambiar
+	// al siguiente
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@GetMapping(value = "/ver/{id}")
-	public String ver(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
+	public String ver(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash,
+			Locale locale) {
 
 		Cliente cliente = clienteService.fetchByIdWithFacturas(id);
 		if (cliente == null) {
-			flash.addFlashAttribute("error", "El cliente no existe en la base de datos");
+			flash.addFlashAttribute("error", messageSource.getMessage("text.flash.error.noCliente", null, locale));
 			return "redirect:/listar";
 		}
 
 		model.put("cliente", cliente);
-		model.put("titulo", "Detalle cliente: " + cliente.getNombre());
+		model.put("titulo",
+				messageSource.getMessage("text.cliente.detalle.titulo", null, locale) + cliente.getNombre());
 		return "ver";
 	}
 
 	@RequestMapping(value = { "/listar", "/" }, method = RequestMethod.GET)
 	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model,
-			Authentication authentication, HttpServletRequest request,
-			Locale locale) {
+			Authentication authentication, HttpServletRequest request, Locale locale) {
 
-		/*Pruebas para conseguir sacar el valor del campo del usuario autenticado y su rol.
-		if (authentication != null) {
-			logger.info("Hola, estás conectado como: ".concat(authentication.getName()));
-		}
-
-		// Para ver que se puede usar el Authentication de forma estática
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication != null) {
-			logger.info("Hola de nuevo, estás conectado como: ".concat(auth.getName()));
-		}
-
-		if (hasRole("ROLE_ADMIN")) {
-			logger.info("Hola ".concat(auth.getName().concat(" tienes acceso.")));
-		} else {
-			logger.info("Hola ".concat(auth.getName().concat(" no tienes acceso.")));
-		}
-
-		SecurityContextHolderAwareRequestWrapper securityContext = new SecurityContextHolderAwareRequestWrapper(request,
-				"ROLE_");
-
-		if (securityContext.isUserInRole("ADMIN")) {
-			logger.info("Wrapper-> Hola ".concat(auth.getName().concat(" tienes acceso.")));
-		} else {
-			logger.info("Wrapper-> Hola ".concat(auth.getName().concat(" no tienes acceso.")));
-		}
+		/*
+		 * Pruebas para conseguir sacar el valor del campo del usuario autenticado y su
+		 * rol. if (authentication != null) {
+		 * logger.info("Hola, estás conectado como: ".concat(authentication.getName()));
+		 * }
+		 * 
+		 * // Para ver que se puede usar el Authentication de forma estática
+		 * Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		 * if (authentication != null) {
+		 * logger.info("Hola de nuevo, estás conectado como: ".concat(auth.getName()));
+		 * }
+		 * 
+		 * if (hasRole("ROLE_ADMIN")) {
+		 * logger.info("Hola ".concat(auth.getName().concat(" tienes acceso."))); } else
+		 * { logger.info("Hola ".concat(auth.getName().concat(" no tienes acceso."))); }
+		 * 
+		 * SecurityContextHolderAwareRequestWrapper securityContext = new
+		 * SecurityContextHolderAwareRequestWrapper(request, "ROLE_");
+		 * 
+		 * if (securityContext.isUserInRole("ADMIN")) {
+		 * logger.info("Wrapper-> Hola ".concat(auth.getName().concat(" tienes acceso.")
+		 * )); } else { logger.info("Wrapper-> Hola ".concat(auth.getName().
+		 * concat(" no tienes acceso."))); }
 		 */
 		Pageable pageRequest = PageRequest.of(page, 4);
 
@@ -140,42 +139,43 @@ public class ClienteController {
 
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/form")
-	public String crear(Map<String, Object> model) {
+	public String crear(Map<String, Object> model, Locale locale) {
 
 		Cliente cliente = new Cliente();
 		model.put("cliente", cliente);
-		model.put("titulo", "Formulario de Cliente");
+		model.put("titulo", messageSource.getMessage("text.form.createClient.titulo", null, locale));
 		return "form";
 	}
 
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/form/{id}")
-	public String editar(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
+	public String editar(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash,
+			Locale locale) {
 
 		Cliente cliente = null;
 
 		if (id > 0) {
 			cliente = clienteService.findOne(id);
 			if (cliente == null) {
-				flash.addFlashAttribute("error", "El ID del cliente no existe en la BBDD!");
+				flash.addFlashAttribute("error", messageSource.getMessage("text.flash.error.noID", null, locale));
 				return "redirect:/listar";
 			}
 		} else {
-			flash.addFlashAttribute("error", "El ID del cliente no puede ser cero!");
+			flash.addFlashAttribute("error", messageSource.getMessage("text.flash.error.idZero", null, locale));
 			return "redirect:/listar";
 		}
 		model.put("cliente", cliente);
-		model.put("titulo", "Editar Cliente");
+		model.put("titulo", messageSource.getMessage("text.form.edit.titulo", null, locale));
 		return "form";
 	}
 
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
 	public String guardar(@Valid Cliente cliente, BindingResult result, Model model,
-			@RequestParam("file") MultipartFile foto, RedirectAttributes flash, SessionStatus status) {
+			@RequestParam("file") MultipartFile foto, RedirectAttributes flash, SessionStatus status, Locale locale) {
 
 		if (result.hasErrors()) {
-			model.addAttribute("titulo", "Formulario de Cliente");
+			model.addAttribute("titulo", messageSource.getMessage("text.form.createClient.titulo", null, locale));
 			return "form";
 		}
 
@@ -195,12 +195,15 @@ public class ClienteController {
 				e.printStackTrace();
 			}
 
-			flash.addFlashAttribute("info", "Has subido correctamente '" + uniqueFilename + "'");
+			flash.addFlashAttribute("info",
+					messageSource.getMessage("text.flash.info.archivoSubido", null, locale) + uniqueFilename + "'");
 
 			cliente.setFoto(uniqueFilename);
 		}
 
-		String mensajeFlash = (cliente.getId() != null) ? "Cliente editado con éxito!" : "Cliente creado con éxito!";
+		String mensajeFlash = (cliente.getId() != null)
+				? messageSource.getMessage("text.flash.success.clienteEditado", null, locale)
+				: messageSource.getMessage("text.flash.success.clienteCreado", null, locale);
 
 		clienteService.save(cliente);
 		status.setComplete();
@@ -210,16 +213,18 @@ public class ClienteController {
 
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/eliminar/{id}")
-	public String eliminar(@PathVariable(value = "id") Long id, RedirectAttributes flash) {
+	public String eliminar(@PathVariable(value = "id") Long id, RedirectAttributes flash, Locale locale) {
 
 		if (id > 0) {
 			Cliente cliente = clienteService.findOne(id);
 
 			clienteService.delete(id);
-			flash.addFlashAttribute("success", "Cliente eliminado con éxito!");
+			flash.addFlashAttribute("success",
+					messageSource.getMessage("text.flash.success.clienteEliminado", null, locale));
 
 			if (uploadFileService.delete(cliente.getFoto())) {
-				flash.addFlashAttribute("info", "Foto " + cliente.getFoto() + " eliminada con exito!");
+				flash.addFlashAttribute("info", messageSource.getMessage("text.flash.info.foto", null, locale)
+						+ cliente.getFoto() + messageSource.getMessage("text.flash.info.fotoEliminada", null, locale));
 			}
 
 		}

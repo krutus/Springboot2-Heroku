@@ -5,7 +5,7 @@
 	<header th:replace="layout/layout :: header"></header>
 	<div class="container py-4">
 		<div class="card border-primary text-center">
-			<div class="card-header bg-success" ><b>Por favor, inicie sesión</b></div>
+			<div class="card-header bg-success" ><b th:text="#{text.login.header}"></b></div>
 			<div class="card-body">
 				<form th:action="@{/login}" method="post">
 
@@ -19,7 +19,7 @@
 					</div>
 					<div class="form-group col-sm-6">
 						<input type="submit" class="btn btn-lg btn-primary btn-black"
-							value="Sign In">
+							th:value="#{text.login.button}">
 					</div>
 				</form>
 			</div>
