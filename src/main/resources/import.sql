@@ -52,4 +52,3 @@ Insert into users (username, password, enabled) values ('admin', '$2a$10$VsAUt4w
 INSERT INTO authorities (user_id, authority) values (1, 'ROLE_USER');
 INSERT INTO authorities (user_id, authority) values (2, 'ROLE_USER');
 INSERT INTO authorities (user_id, authority) values (2, 'ROLE_ADMIN');
-
